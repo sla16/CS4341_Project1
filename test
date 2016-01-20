@@ -1,0 +1,22 @@
+e = count empty spots
+base weight = 5
+a1, a2...an = number in a row
+[ 5 * (a1)  * e ] + [ 10 * (a2) * e ] + ... + [ (big number) * (an) * e ] - opposite
+
+5 * 3 * e
+
+(5 * 1 * e) + (10 * 2 * e) + 0...
+
+n = 4
+
+9 9 9 9 9 9 9
+9 9 9 9 9 9 9
+9 9 9 9 9 9 9
+9 9 9 9 9 9 9
+9 1 9 9 9 9 9
+1 2 1 2 1 9 9
+
+
+1 1 1
+1 1 1
+1 1 1
