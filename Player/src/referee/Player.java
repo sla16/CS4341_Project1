@@ -25,8 +25,10 @@ public class Player {
 	
     	String s=input.readLine();	
 		List<String> ls=Arrays.asList(s.split(" "));
-		if(ls.size()==2){
 		if(ls.size() == PLAYER_TURN){
+			updateBoard(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), false);
+			// TODO: Find out the best move and make it
+			//updateBoard(bestMove, bestMove, true);
 			System.out.println(ls.get(0)+" "+ls.get(1));
 		}
 		else if(ls.size() == GAME_OVER){
@@ -44,7 +46,7 @@ public class Player {
 			// If the first player goes first and we are the first player, go first
 			// If the second player goes first and we are the second player, go first
 			if ((ls.get(3).equals("1") && this.isFirstPlayer) || (ls.get(3).equals("2") && !this.isFirstPlayer)) {
-				updateBoard(4, 1);
+				updateBoard(4, 1, true);
 				System.out.println("4 1");
 			}
 		}
@@ -62,17 +64,17 @@ public class Player {
 	 * consideration the action (place or pop)
 	 * @param position The position on the board that was played as an int
 	 * @param action The action as place or pop as an int
+	 * @param isMyTurn True or false to update if it is my turn
 	 */
-	public void updateBoard(int position, int action) {
-		boolean piecePlaced = false;
-		for (int i = this.currentBoard.length; i > -1; i--) {
-			for (int j = 0; j < this.currentBoard[0].length; j++) {
-				if (this.currentBoard[i][position] == 9) {
+	public void updateBoard(int position, int action, boolean isMyTurn) {
+		for (int i = this.currentBoard.length-1; i > -1; i--) {
+			if (this.currentBoard[i][position] == 9) {
+				if (isMyTurn) {
 					this.currentBoard[i][position] = this.isFirstPlayer ? 1 : 2;
-					piecePlaced = true;
-					break;
+				} else {
+					this.currentBoard[i][position] = this.isFirstPlayer ? 2 : 1;
 				}
-				if (piecePlaced) break;
+				break;
 			}
 		}
 		/* TODO: UPDATE FOR POP */
