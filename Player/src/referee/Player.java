@@ -36,22 +36,26 @@ public class Player {
 			System.out.println("game over!!!");
 			System.exit(0);
 		}
-		else if(ls.size() == GAME_INFO){          //ls contains game information
+		else if(ls.size() == GAME_INFO){
 			// Sets the number of pieces in a row to win
 			this.numToWin = Integer.parseInt(ls.get(2));
+			
 			// Initializes the (n x m) board and fills it with 9
 			this.currentBoard = new int[Integer.parseInt(ls.get(0))][Integer.parseInt(ls.get(1))];
 			for (int[] row : this.currentBoard) {
 				Arrays.fill(row, 9);
 			}
+			
 			// If the first player goes first and we are the first player, go first
 			// If the second player goes first and we are the second player, go first
 			if ((ls.get(3).equals("1") && this.isFirstPlayer) || (ls.get(3).equals("2") && !this.isFirstPlayer)) {
+				// TODO: What move should we make if we are first?
 				updateBoard(4, 1, true);
 				System.out.println("4 1");
 			}
 		}
-		else if(ls.size() == PLAYER_NAMES){		//player1: aa player2: bb
+		else if(ls.size() == PLAYER_NAMES){
+			// Sets a flag to see if we are the first player
 			if (ls.get(1).equals(this.playerName)) {
 				this.isFirstPlayer = true;
 			}
@@ -92,6 +96,18 @@ public class Player {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * This method will return a theoretical board based on a move provided to the board provided.
+	 * @param board Current game board
+	 * @param position Position to make a move
+	 * @param action POP or PUSH
+	 * @param isMyTurn True if it is my turn
+	 */
+	public int[][] getHeuristicBoard(int[][] board, int position, int action, boolean isMyTurn) {
+		// TODO: Use this method to compare boards
+		throw new UnsupportedOperationException();
 	}
 	
 	public static void main(String[] args) throws IOException {
