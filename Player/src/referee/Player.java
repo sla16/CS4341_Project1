@@ -20,6 +20,7 @@ public class Player {
 	private static final int PLAYER_TURN = 2;
 	private static final int PLAYER_NAMES = 4;
 	private static final int GAME_INFO = 5;
+	private static final int PUSH = 1;
 	
 	public void processInput() throws IOException{	
 	
@@ -67,17 +68,30 @@ public class Player {
 	 * @param isMyTurn True or false to update if it is my turn
 	 */
 	public void updateBoard(int position, int action, boolean isMyTurn) {
-		for (int i = this.currentBoard.length-1; i > -1; i--) {
-			if (this.currentBoard[i][position] == 9) {
-				if (isMyTurn) {
-					this.currentBoard[i][position] = this.isFirstPlayer ? 1 : 2;
-				} else {
-					this.currentBoard[i][position] = this.isFirstPlayer ? 2 : 1;
+		if(action == PUSH)
+		{
+			for (int i = this.currentBoard.length-1; i > -1; i--) {
+				if (this.currentBoard[i][position] == 9) {
+					if (isMyTurn) {
+						this.currentBoard[i][position] = this.isFirstPlayer ? 1 : 2;
+					} else {
+						this.currentBoard[i][position] = this.isFirstPlayer ? 2 : 1;
+					}
+					break;
 				}
-				break;
+			}
+		} 
+		else 
+		{
+			// Moves all the pieces in that position/column down one row
+			for (int i = this.currentBoard.length-1; i > -1; i--) {
+				if (i == 0) {
+					this.currentBoard[i][position] = 9;
+				} else {
+					this.currentBoard[i][position] = this.currentBoard[i-1][position];
+				}
 			}
 		}
-		/* TODO: UPDATE FOR POP */
 	}
 	
 	public static void main(String[] args) throws IOException {
