@@ -14,6 +14,7 @@ public class Player {
 	boolean first_move=false;
 	boolean isFirstPlayer = false;
 	int[][] currentBoard;
+	int numToWin;
 	
 	private static final int GAME_OVER = 1;
 	private static final int PLAYER_TURN = 2;
@@ -33,17 +34,27 @@ public class Player {
 			System.exit(0);
 		}
 		else if(ls.size() == GAME_INFO){          //ls contains game information
+			// Sets the number of pieces in a row to win
+			this.numToWin = Integer.parseInt(ls.get(2));
 			// Initializes the (n x m) board and fills it with 9
-			this.currentBoard = new int[Integer.parseInt(ls.get(1))][Integer.parseInt(ls.get(2))];
+			this.currentBoard = new int[Integer.parseInt(ls.get(0))][Integer.parseInt(ls.get(1))];
 			for (int[] row : this.currentBoard) {
 				Arrays.fill(row, 9);
 			}
 			// If the first player goes first and we are the first player, go first
-			if (ls.get(3).equals("1") && this.isFirstPlayer) {
-				System.out.println("4 1");
-			} 
 			// If the second player goes first and we are the second player, go first
-			else if (ls.get(3).equals("2") && !this.isFirstPlayer) {
+			if ((ls.get(3).equals("1") && this.isFirstPlayer) || (ls.get(3).equals("2") && !this.isFirstPlayer)) {
+				boolean piecePlaced = false;
+				for (int i = this.currentBoard.length; i > -1; i--) {
+					for (int j = 0; j < this.currentBoard[0].length; j++) {
+						if (this.currentBoard[i][4] == 9) {
+							this.currentBoard[i][4] = this.isFirstPlayer ? 1 : 2;
+							piecePlaced = true;
+							break;
+						}
+						if (piecePlaced) break;
+					}
+				}
 				System.out.println("4 1");
 			}
 		}
@@ -51,10 +62,9 @@ public class Player {
 			if (ls.get(1).equals(this.playerName)) {
 				this.isFirstPlayer = true;
 			}
-			//TODO combine this information with game information to decide who is the first player
 		}
 		else
-			System.out.println("not what I want");
+			System.out.println("Unexpected input");
 	}
 	
 	public static void main(String[] args) throws IOException {
