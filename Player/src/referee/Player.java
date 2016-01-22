@@ -44,17 +44,7 @@ public class Player {
 			// If the first player goes first and we are the first player, go first
 			// If the second player goes first and we are the second player, go first
 			if ((ls.get(3).equals("1") && this.isFirstPlayer) || (ls.get(3).equals("2") && !this.isFirstPlayer)) {
-				boolean piecePlaced = false;
-				for (int i = this.currentBoard.length; i > -1; i--) {
-					for (int j = 0; j < this.currentBoard[0].length; j++) {
-						if (this.currentBoard[i][4] == 9) {
-							this.currentBoard[i][4] = this.isFirstPlayer ? 1 : 2;
-							piecePlaced = true;
-							break;
-						}
-						if (piecePlaced) break;
-					}
-				}
+				updateBoard(4, 1);
 				System.out.println("4 1");
 			}
 		}
@@ -65,6 +55,27 @@ public class Player {
 		}
 		else
 			System.out.println("Unexpected input");
+	}
+	
+	/**
+	 * This method updates the board based on the piece played. Takes into
+	 * consideration the action (place or pop)
+	 * @param position The position on the board that was played as an int
+	 * @param action The action as place or pop as an int
+	 */
+	public void updateBoard(int position, int action) {
+		boolean piecePlaced = false;
+		for (int i = this.currentBoard.length; i > -1; i--) {
+			for (int j = 0; j < this.currentBoard[0].length; j++) {
+				if (this.currentBoard[i][position] == 9) {
+					this.currentBoard[i][position] = this.isFirstPlayer ? 1 : 2;
+					piecePlaced = true;
+					break;
+				}
+				if (piecePlaced) break;
+			}
+		}
+		/* TODO: UPDATE FOR POP */
 	}
 	
 	public static void main(String[] args) throws IOException {
