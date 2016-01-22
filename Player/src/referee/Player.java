@@ -15,6 +15,7 @@ public class Player {
 	boolean isFirstPlayer = false;
 	int[][] currentBoard;
 	int numToWin;
+	int secondsToPlay;
 	
 	private static final int GAME_OVER = 1;
 	private static final int PLAYER_TURN = 2;
@@ -30,15 +31,17 @@ public class Player {
 			updateBoard(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), false);
 			// TODO: Find out the best move and make it
 			//updateBoard(bestMove, bestMove, true);
-			System.out.println(ls.get(0)+" "+ls.get(1));
+			int randomMove = (int) Math.floor(Math.random() * this.currentBoard[0].length);
+			System.out.println(randomMove+" 1");
 		}
 		else if(ls.size() == GAME_OVER){
 			System.out.println("game over!!!");
 			System.exit(0);
 		}
 		else if(ls.size() == GAME_INFO){
-			// Sets the number of pieces in a row to win
+			// Sets the number of pieces in a row to win and time to play
 			this.numToWin = Integer.parseInt(ls.get(2));
+			this.secondsToPlay = Integer.parseInt(ls.get(4));
 			
 			// Initializes the (n x m) board and fills it with 9
 			this.currentBoard = new int[Integer.parseInt(ls.get(0))][Integer.parseInt(ls.get(1))];
