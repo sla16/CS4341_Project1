@@ -53,8 +53,16 @@ public class Player {
 			// If the second player goes first and we are the second player, go first
 			if ((ls.get(3).equals("1") && this.isFirstPlayer) || (ls.get(3).equals("2") && !this.isFirstPlayer)) {
 				// TODO: What move should we make if we are first?
-				updateBoard(4, 1, true);
-				System.out.println("4 1");
+				int column = Integer.parseInt(ls.get(1));
+				if (column % 2 == 0){
+					updateBoard(column/2, 1, true);
+					System.out.println(column/2 + " 1");
+				} 
+				else{
+					updateBoard((int) (column/2 + 0.5), 1, true);
+					System.out.println((int)(column/2 + 0.5) + " 1");
+				}
+				
 			}
 		}
 		else if(ls.size() == PLAYER_NAMES){
