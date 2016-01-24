@@ -247,8 +247,104 @@ public class Player {
 	
 	public int getHeuristicValue(int[][] board, boolean isMyTurn){
 		int value = 0;
+		int countInARow = 0;
+		boolean breakDiag = false;
 		int heuristicRow = this.rows;
 		int heuristicCol = this.columns;
+		
+		for(int i = board.length-1; i > -1; i--) {
+			for(int j = 0; j < board[0].length; j++) {
+				// Finds first piece
+				if (board[i][j] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+					countInARow = 1;
+					// Check left for pieces in a row.
+					for (int k = j-1; k > -1; k--) {
+						if (board[i][k] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+							countInARow += 1;
+						} else {
+							break;
+						}
+					}
+					// Check right for pieces in a row.
+					for (int k = j+1; k < board[0].length; k++) {
+						if (board[i][k] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+							countInARow += 1;
+						} else {
+							break;
+						}
+					}
+					// Check up for pieces in a row.
+					for (int k = i-1; k > -1; k--) {
+						if (board[k][j] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+							countInARow += 1;
+						} else {
+							break;
+						}
+					}
+					// Check down for pieces in a row.
+					for (int k = i+1; k < board.length; k++) {
+						if (board[k][j] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+							countInARow += 1;
+						} else {
+							break;
+						}
+					}
+					// Check diagonal up for pieces in a row.
+					for (int k = i-1; k > -1; k--) {
+						for (int l = j-1; l > -1; j--) {
+							if (board[k][l] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+								countInARow += 1;
+							} else {
+								breakDiag = true;
+								break;
+							}
+						}
+						if (breakDiag) break;
+					}
+					breakDiag = false;
+					// Check diagonal down for pieces in a row.
+					for (int k = i+1; k < board.length; k++) {
+						for (int l = j+1; l < board[0].length; j++) {
+							if (board[k][l] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+								countInARow += 1;
+							} else {
+								breakDiag = true;
+								break;
+							}
+						}
+						if (breakDiag) break;
+					}
+					breakDiag = false;
+					// Check other diagonal up for pieces in a row.
+					for (int k = i-1; k > -1; k--) {
+						for (int l = j+1; l < board[0].length; j++) {
+							if (board[k][l] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+								countInARow += 1;
+							} else {
+								breakDiag = true;
+								break;
+							}
+						}
+						if (breakDiag) break;
+					}
+					breakDiag = false;
+					// Check other diagonal down for pieces in a row.
+					for (int k = i+1; k < board.length; k++) {
+						for (int l = j-1; l > -1; j--) {
+							if (board[k][l] == (isMyTurn ? (this.isFirstPlayer ? 1 : 2) : (this.isFirstPlayer ? 2 : 1))) {
+								countInARow += 1;
+							} else {
+								breakDiag = true;
+								break;
+							}
+						}
+						if (breakDiag) break;
+					}
+				}
+				value += countInARow;
+			}
+		}
+		
 		if (heuristicRow > 1){
 			if (heuristicCol > 1){
 				
