@@ -2,6 +2,7 @@ package referee;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,9 @@ public class Player {
 	boolean first_move=false;
 	boolean isFirstPlayer = false;
 	int[][] currentBoard;
+	int[][] nextBoard;
+	ArrayList<int[][]> possibleMoves = new ArrayList<int[][]>();
+	int rows, columns;
 	int numToWin;
 	int secondsToPlay;
 	
@@ -27,22 +31,17 @@ public class Player {
 	
     	String s=input.readLine();	
 		List<String> ls=Arrays.asList(s.split(" "));
-		int rows = Integer.parseInt(ls.get(0));
-		int columns = Integer.parseInt(ls.get(1));
-
 
 		if(ls.size() == PLAYER_TURN){
-			updateBoard(this.currentBoard,rows, columns, false);
+			int row = Integer.parseInt(ls.get(0));
+			int action = Integer.parseInt(ls.get(1));
+			updateBoard(row, action, false);
+			generateMoves(true);
 			// TODO: Find out the best move and make it
 			//updateBoard(bestMove, bestMove, true);
 			
-			
-			for (int i = 0; i < columns; i++){
-				if(this.currentBoard[rows-1][i] == 9){
-					int[][] heuristicBoard = this.currentBoard;
-				}
-			}
 			int randomMove = (int) Math.floor(Math.random() * this.currentBoard[0].length);
+			updateBoard(randomMove, 1, true);
 			System.out.println(randomMove+" 1");
 		}
 		else if(ls.size() == GAME_OVER){
@@ -51,11 +50,13 @@ public class Player {
 		}
 		else if(ls.size() == GAME_INFO){
 			// Sets the number of pieces in a row to win and time to play
+			this.rows = Integer.parseInt(ls.get(0));
+			this.columns = Integer.parseInt(ls.get(1));
 			this.numToWin = Integer.parseInt(ls.get(2));
 			this.secondsToPlay = Integer.parseInt(ls.get(4));
 			
 			// Initializes the (n x m) board and fills it with 9
-			this.currentBoard = new int[rows][columns];
+			this.currentBoard = new int[this.rows][this.columns];
 			for (int[] row : this.currentBoard) {
 				Arrays.fill(row, 9);
 			}
@@ -64,13 +65,13 @@ public class Player {
 			// If the second player goes first and we are the second player, go first
 			if ((ls.get(3).equals("1") && this.isFirstPlayer) || (ls.get(3).equals("2") && !this.isFirstPlayer)) {
 				// TODO: What move should we make if we are first?
-				if (columns % 2 == 0){
-					updateBoard(this.currentBoard,columns/2, 1, true);
-					System.out.println(columns/2 + " 1");
+				if (this.columns % 2 == 0){
+					updateBoard(this.columns/2, 1, true);
+					System.out.println(this.columns/2 + " 1");
 				} 
 				else{
-					updateBoard(this.currentBoard,(int) (columns/2 + 0.5), 1, true);
-					System.out.println((int)(columns/2 + 0.5) + " 1");
+					updateBoard((int) (this.columns/2 + 0.5), 1, true);
+					System.out.println((int)(this.columns/2 + 0.5) + " 1");
 				}
 				
 			}
@@ -85,6 +86,18 @@ public class Player {
 			System.out.println("Unexpected input");
 	}
 	
+	private void generateMoves(boolean isMyTurn) {
+		for (int i = 0; i < this.currentBoard.length; i++) {
+			this.nextBoard = new int[this.rows][this.columns];
+			for(int j = 0; j < this.rows; j++) {
+				for(int k = 0; k < this.columns; k++) {
+					this.nextBoard[j][k] = this.currentBoard[j][k];
+				}
+			}
+			updateHeuristicBoard(i, 1, isMyTurn);
+			this.possibleMoves.add(this.nextBoard);
+		}
+	}
 	/**
 	 * This method updates the board based on the piece played. Takes into
 	 * consideration the action (place or pop)
@@ -92,15 +105,15 @@ public class Player {
 	 * @param action The action as place or pop as an int
 	 * @param isMyTurn True or false to update if it is my turn
 	 */
-	public void updateBoard(int[][] board, int position, int action, boolean isMyTurn) {
+	public void updateBoard(int position, int action, boolean isMyTurn) {
 		if(action == PUSH)
 		{
-			for (int i = board.length-1; i > -1; i--) {
-				if (board[i][position] == 9) {
+			for (int i = this.currentBoard.length-1; i > -1; i--) {
+				if (this.currentBoard[i][position] == 9) {
 					if (isMyTurn) {
-						board[i][position] = this.isFirstPlayer ? 1 : 2;
+						this.currentBoard[i][position] = this.isFirstPlayer ? 1 : 2;
 					} else {
-						board[i][position] = this.isFirstPlayer ? 2 : 1;
+						this.currentBoard[i][position] = this.isFirstPlayer ? 2 : 1;
 					}
 					break;
 				}
@@ -109,11 +122,38 @@ public class Player {
 		else 
 		{
 			// Moves all the pieces in that position/column down one row
-			for (int i = board.length-1; i > -1; i--) {
+			for (int i = this.currentBoard.length-1; i > -1; i--) {
 				if (i == 0) {
-					board[i][position] = 9;
+					this.currentBoard[i][position] = 9;
 				} else {
-					board[i][position] = board[i-1][position];
+					this.currentBoard[i][position] = this.currentBoard[i-1][position];
+				}
+			}
+		}
+	}
+	
+	public void updateHeuristicBoard(int position, int action, boolean isMyTurn) {
+		if(action == PUSH)
+		{
+			for (int i = this.nextBoard.length-1; i > -1; i--) {
+				if (this.nextBoard[i][position] == 9) {
+					if (isMyTurn) {
+						this.nextBoard[i][position] = this.isFirstPlayer ? 1 : 2;
+					} else {
+						this.nextBoard[i][position] = this.isFirstPlayer ? 2 : 1;
+					}
+					break;
+				}
+			}
+		} 
+		else 
+		{
+			// Moves all the pieces in that position/column down one row
+			for (int i = this.nextBoard.length-1; i > -1; i--) {
+				if (i == 0) {
+					this.nextBoard[i][position] = 9;
+				} else {
+					this.nextBoard[i][position] = this.nextBoard[i-1][position];
 				}
 			}
 		}
