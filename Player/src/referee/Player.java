@@ -36,7 +36,6 @@ public class Player {
 			int row = Integer.parseInt(ls.get(0));
 			int action = Integer.parseInt(ls.get(1));
 			updateBoard(row, action, false);
-			generateMoves(true);
 			// TODO: Find out the best move and make it
 			//updateBoard(bestMove, bestMove, true);			
 //			for (int i = 0; i < columns; i++){
@@ -90,17 +89,68 @@ public class Player {
 			System.out.println("Unexpected input");
 	}
 	
-	private void generateMoves(boolean isMyTurn) {
-		for (int i = 0; i < this.currentBoard.length; i++) {
-			this.nextBoard = new int[this.rows][this.columns];
-			for(int j = 0; j < this.rows; j++) {
-				for(int k = 0; k < this.columns; k++) {
-					this.nextBoard[j][k] = this.currentBoard[j][k];
+	// {column, action}
+	private List<int[]> generateMoves(boolean isMyTurn) {
+		List<int[]> possibleMoves = new ArrayList<int[]>();
+		
+		for (int i = this.currentBoard.length-1; i > -1; i--) {
+			for (int j = 0; j < this.currentBoard[0].length; j++) {
+				if (this.currentBoard[i][j] == 9) {
+					possibleMoves.add(new int[] {j, 1});
 				}
 			}
-			updateHeuristicBoard(i, 1, isMyTurn);
-			this.possibleMoves.add(this.nextBoard);
+//			this.nextBoard = new int[this.rows][this.columns];
+//			for(int j = 0; j < this.rows; j++) {
+//				for(int k = 0; k < this.columns; k++) {
+//					this.nextBoard[j][k] = this.currentBoard[j][k];
+//				}
+//			}
+//			updateHeuristicBoard(i, 1, isMyTurn);
+//			this.possibleMoves.add(this.nextBoard);
 		}
+		return possibleMoves;
+	}
+	
+	// {score, row}
+	public int[] minimax(int depth, boolean isMyTurn) {
+		int bestValue = isMyTurn ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+		int currentValue;
+		// Generates next possible moves
+		List<int[]> possibleMoves = generateMoves(isMyTurn);
+		int bestMove = -1;
+		
+		if (possibleMoves.size() == 0 || depth == 0) {
+			bestValue = getHeuristicValue(this.currentBoard, isMyTurn);
+		} 
+		else {
+			for (int i = 0; i < possibleMoves.size(); i++) {
+				updateBoard(possibleMoves.get(i)[0], possibleMoves.get(i)[1], isMyTurn);
+//				this.nextBoard = new int[this.rows][this.columns];
+//				for(int j = 0; j < this.rows; j++) {
+//					for(int k = 0; k < this.columns; k++) {
+//						this.nextBoard[j][k] = this.currentBoard[j][k];
+//					}
+//				}
+				// Maximize for me
+				if (isMyTurn) {
+					currentValue = minimax(depth - 1, false)[0];
+					if (currentValue > bestValue) {
+						bestValue = currentValue;
+						bestMove = possibleMoves.get(i)[0];
+					}
+				} 
+				// Maximize for opponent
+				else {
+					currentValue = minimax(depth - 1, true)[0];
+					if (currentValue < bestValue) {
+						bestValue = currentValue;
+						bestMove = possibleMoves.get(i)[0];
+					}
+				}
+				undoLastMove(possibleMoves.get(i)[0], possibleMoves.get(i)[1], isMyTurn);
+			}
+		}
+		return new int[] {bestValue, bestMove};
 	}
 	/**
 	 * This method updates the board based on the piece played. Takes into
@@ -120,6 +170,28 @@ public class Player {
 						this.currentBoard[i][position] = this.isFirstPlayer ? 2 : 1;
 					}
 					break;
+				}
+			}
+		} 
+		else 
+		{
+			// Moves all the pieces in that position/column down one row
+			for (int i = this.currentBoard.length-1; i > -1; i--) {
+				if (i == 0) {
+					this.currentBoard[i][position] = 9;
+				} else {
+					this.currentBoard[i][position] = this.currentBoard[i-1][position];
+				}
+			}
+		}
+	}
+	
+	public void undoLastMove(int position, int action, boolean isMyTurn) {
+		if(action == PUSH)
+		{
+			for (int i = 0; i < this.currentBoard.length; i++) {
+				if (this.currentBoard[i][position] != 9) {
+					this.currentBoard[i][position] = 9;
 				}
 			}
 		} 
@@ -175,8 +247,8 @@ public class Player {
 	
 	public int getHeuristicValue(int[][] board, boolean isMyTurn){
 		int value = 0;
-		int heuristicRow = board.length;
-		int heuristicCol = board[0].length;
+		int heuristicRow = this.rows;
+		int heuristicCol = this.columns;
 		if (heuristicRow > 1){
 			if (heuristicCol > 1){
 				
