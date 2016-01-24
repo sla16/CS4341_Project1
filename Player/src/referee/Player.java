@@ -38,8 +38,12 @@ public class Player {
 			updateBoard(row, action, false);
 			generateMoves(true);
 			// TODO: Find out the best move and make it
-			//updateBoard(bestMove, bestMove, true);
-			
+			//updateBoard(bestMove, bestMove, true);			
+//			for (int i = 0; i < columns; i++){
+//				if(this.currentBoard[rows-1][i] == 9){
+//					int[][] heuristicBoard = this.currentBoard;
+//				}
+//			}
 			int randomMove = (int) Math.floor(Math.random() * this.currentBoard[0].length);
 			updateBoard(randomMove, 1, true);
 			System.out.println(randomMove+" 1");
@@ -290,26 +294,126 @@ public class Player {
 						if (board[n-1][heuristicCol-2] == (isMyTurn ? 2: 1)){
 							value += 1;
 						}
-						if (board[n-1][] == (isMyTurn ? 2: 1)){
+						if (board[n][heuristicCol-2] == (isMyTurn ? 2: 1)){
 							value += 1;
 						}
-						if (board[n+1][1] == (isMyTurn ? 2: 1)){
+						if (board[n+1][heuristicCol-2] == (isMyTurn ? 2: 1)){
 							value += 1;
 						}
-						if (board[n+1][0] == (isMyTurn ? 2: 1)){
+						if (board[n+1][heuristicCol-1] == (isMyTurn ? 2: 1)){
 							value += 1;
 						}
 					}
-					if (board[n][heuristicCol-1] == (isMyTurn ? 2: 1)){
+				}
+				
+				for(int m = 1; m < (heuristicCol -1); m++){
+					if (board[0][m] == (isMyTurn ? 2: 1)){
 						value += 1;
+						if (board[0][m-1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[1][m-1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[1][m] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[1][m+1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[0][m+1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+					}
+					
+					if (board[heuristicRow-1][m] == (isMyTurn ? 2: 1)){
+						value += 1;
+						if (board[heuristicRow-1][m-1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[heuristicRow-2][m-1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[heuristicRow-2][m] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[heuristicRow-2][m+1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[heuristicRow-1][m+1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
 					}
 				}
 			}
 			else{
-				if(board[])
+				for (int n = 1; n < (heuristicRow-1); n++){
+					if (board[n][heuristicCol-1] == (isMyTurn ? 2: 1)){
+						value += 1;
+						if (board[n+1][heuristicCol-1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+						if (board[n-1][heuristicCol-1] == (isMyTurn ? 2: 1)){
+							value += 1;
+						}
+					}
+				}
 			}
 		}
-		return value;
+		else{
+			for (int m = 1; m < (heuristicCol-1); m++){
+				if (board[heuristicRow-1][m] == (isMyTurn ? 2: 1)){
+					value += 1;
+					if (board[heuristicRow-1][m-1] == (isMyTurn ? 2: 1)){
+						value += 1;
+					}
+					if (board[heuristicRow-1][m+1] == (isMyTurn ? 2: 1)){
+						value += 1;
+					}
+				}
+			}
+		}
+		
+		if (heuristicRow > 2){
+			if (heuristicCol > 2){
+				for(int y = 1; y < (heuristicCol-1); y++){
+					for(int z = 1; z < (heuristicRow -1); z++){
+						if (board[z][y] == (isMyTurn ? 2:1)){
+							value += 1;
+							if(board[z-1][y-1] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+							if(board[z-1][y] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+							if(board[z-1][y+1] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+							if(board[z][y-1] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+							if(board[z][y+1] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+							if(board[z+1][y-1] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+							if(board[z+1][y] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+							if(board[z+1][y+1] == (isMyTurn ? 2:1)){
+								value += 1;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (isMyTurn){
+			return value;
+		}
+		else
+			return -value;
 	}
 	
 	/**
