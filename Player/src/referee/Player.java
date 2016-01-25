@@ -35,18 +35,16 @@ public class Player {
 		if(ls.size() == PLAYER_TURN){
 			int row = Integer.parseInt(ls.get(0));
 			int action = Integer.parseInt(ls.get(1));
+			
+			// Update board to reflect on opponent's move
 			updateBoard(row, action, false);
-			int[] x = minimax(1, true);
-			// TODO: Find out the best move and make it
-			//updateBoard(bestMove, bestMove, true);			
-//			for (int i = 0; i < columns; i++){
-//				if(this.currentBoard[rows-1][i] == 9){
-//					int[][] heuristicBoard = this.currentBoard;
-//				}
-//			}
-//			int randomMove = (int) Math.floor(Math.random() * this.currentBoard[0].length);
-			updateBoard(x[1], 1, true);
-			System.out.println(x[1] + " 1");
+			
+			// Perform search so we can find our move
+			int[] bestMove = AlphaBeta_MiniMax(1, true, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			
+			// Update board to reflect our move
+			updateBoard(bestMove[1], 1, true);
+			System.out.println(bestMove[1] + " 1");
 		}
 		else if(ls.size() == GAME_OVER){
 			System.out.println("game over!!!");
@@ -67,8 +65,8 @@ public class Player {
 			
 			// If the first player goes first and we are the first player, go first
 			// If the second player goes first and we are the second player, go first
+			// Currently, place piece in middle for best move
 			if ((ls.get(3).equals("1") && this.isFirstPlayer) || (ls.get(3).equals("2") && !this.isFirstPlayer)) {
-				// TODO: What move should we make if we are first?
 				if (this.columns % 2 == 0){
 					updateBoard(this.columns/2, 1, true);
 					System.out.println(this.columns/2 + " 1");
@@ -77,7 +75,6 @@ public class Player {
 					updateBoard((int) (this.columns/2 + 0.5), 1, true);
 					System.out.println((int)(this.columns/2 + 0.5) + " 1");
 				}
-				
 			}
 		}
 		else if(ls.size() == PLAYER_NAMES){
@@ -90,8 +87,8 @@ public class Player {
 			System.out.println("Unexpected input");
 	}
 	
-	// {column, action}
-	private List<int[]> generateMoves(boolean isMyTurn) {
+	// Checks the current board and finds all valid moves for the specified player
+	private List<int[]> GetValidMoves(boolean isMyTurn) {
 		List<int[]> possibleMoves = new ArrayList<int[]>();
 		
 		for (int i = this.currentBoard.length-1; i > -1; i--) {
@@ -106,6 +103,7 @@ public class Player {
 		return possibleMoves;
 	}
 	
+	// Helper function to check if the provided list contains a value
 	private boolean containsMoves(List<int[]> possibleMoves, int j) {
 		for(int i = 0; i < possibleMoves.size(); i++) {
 			if (possibleMoves.get(i)[0] == j)
@@ -114,41 +112,65 @@ public class Player {
 		return false;
 	}
 	
-	// {score, row}
-	public int[] minimax(int depth, boolean isMyTurn) {
+	// Definition of alpha beta pruning from the book page 170, 2nd edition
+	// In this case, the variable currentValue will be "v" in the book
+	// First time it is called will be on "Max" side, so our turn. Consecutive
+	// times called will alternate between "Min" and "Max"
+	public int[] AlphaBeta_MiniMax(int depth, boolean isMyTurn, int alpha_value, int beta_value) {
 		int bestValue = isMyTurn ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 		int currentValue;
 		// Generates next possible moves
-		List<int[]> possibleMoves = generateMoves(isMyTurn);
+		List<int[]> validMoves = GetValidMoves(isMyTurn);
 		int bestMove = -1;
 		
-		if (possibleMoves.size() == 0 || depth == 0) {
+		// Check if depth is 0 or "end" if there are no more moves and return
+		if (validMoves.size() == 0 || depth == 0) {
 			bestValue = getHeuristicValue(this.currentBoard, isMyTurn);
+			return new int[] {bestValue, bestMove};
 		} 
 		else {
-			for (int i = 0; i < possibleMoves.size(); i++) {
-				updateBoard(possibleMoves.get(i)[0], possibleMoves.get(i)[1], isMyTurn);
-				// Maximize for me
+			// Go through all the valid moves and play through it
+			for (int i = 0; i < validMoves.size(); i++) {
+				// Make the move and then "judge" it based on Max or Min, update board accordingly
+				updateBoard(validMoves.get(i)[0], validMoves.get(i)[1], isMyTurn);
+				// Maximize for me (player)
 				if (isMyTurn) {
-					currentValue = minimax(depth - 1, false)[0];
-					if (currentValue > bestValue) {
-						bestValue = currentValue;
-						bestMove = possibleMoves.get(i)[0];
+					// Continue playing, but on "Min" turn
+					currentValue = AlphaBeta_MiniMax(depth - 1, false, alpha_value, beta_value)[0];
+//					System.err.println(validMoves.get(i)[0] + " " + currentValue + " " + alpha_value);
+					// Check if it is greater because we want to maximize alpha
+					if (currentValue > alpha_value) {
+						alpha_value = currentValue;
+						bestMove = validMoves.get(i)[0];
 					}
 				} 
 				// Maximize for opponent
 				else {
-					currentValue = minimax(depth - 1, true)[0];
-					if (currentValue < bestValue) {
-						bestValue = currentValue;
-						bestMove = possibleMoves.get(i)[0];
+					// Continue playing, but on "Max" turn
+					currentValue = AlphaBeta_MiniMax(depth - 1, true, alpha_value, beta_value)[0];
+					// Check if it is less because we want to minimize beta
+					if (currentValue < beta_value) {
+						beta_value = currentValue;
+						bestMove = validMoves.get(i)[0];
 					}
 				}
-				undoLastMove(possibleMoves.get(i)[0], possibleMoves.get(i)[1], isMyTurn);
+				// Revert the board back to the previous state so we can keep track of an updated board
+				undoLastMove(validMoves.get(i)[0], validMoves.get(i)[1], isMyTurn);
+				// "Prune tree" section, don't need to keep looking
+				if (alpha_value >= beta_value) break;
 			}
 		}
-		return new int[] {bestValue, bestMove};
+
+		// Return alpha or beta depending on Max or Min turn
+		if (isMyTurn) {
+			return new int[] {alpha_value, bestMove};
+		} else {
+			return new int[] {beta_value, bestMove};
+		}
 	}
+	
+	
+	
 	/**
 	 * This method updates the board based on the piece played. Takes into
 	 * consideration the action (place or pop)
@@ -205,43 +227,7 @@ public class Player {
 		}
 	}
 	
-	public void updateHeuristicBoard(int position, int action, boolean isMyTurn) {
-		if(action == PUSH)
-		{
-			for (int i = this.nextBoard.length-1; i > -1; i--) {
-				if (this.nextBoard[i][position] == 9) {
-					if (isMyTurn) {
-						this.nextBoard[i][position] = this.isFirstPlayer ? 1 : 2;
-					} else {
-						this.nextBoard[i][position] = this.isFirstPlayer ? 2 : 1;
-					}
-					break;
-				}
-			}
-		} 
-		else 
-		{
-			// Moves all the pieces in that position/column down one row
-			for (int i = this.nextBoard.length-1; i > -1; i--) {
-				if (i == 0) {
-					this.nextBoard[i][position] = 9;
-				} else {
-					this.nextBoard[i][position] = this.nextBoard[i-1][position];
-				}
-			}
-		}
-	}
-	
-//	public void maxMove(int[][] board){
-//		int[][] heuristicBoard = this.currentBoard;
-//		int i = 0;
-//		for (int i = 0; i < Integer.parseInt(ls.get(0)); i++){
-//			for(int )
-//		}
-//		for (heuristicBoard.length > )
-//		Integer.parseInt(ls.get(0));
-//	}
-	
+	// Heuristic function
 	public int getHeuristicValue(int[][] board, boolean isMyTurn){
 		int value = 0;
 		int countInARow = 0;
