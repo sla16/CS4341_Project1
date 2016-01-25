@@ -1,0 +1,8 @@
+Sam La and Nan Zhang
+CS 4341
+Project 1 - Adversial Search
+
+Experiment
+
+One of our experiments was our first evaluation function. We set pieces to increment our value by 1 point even if it was 1 piece, 2 pieces, 3 pieces or so on. In short, this meant that each piece was worth only 1 point, and the more you had on the board, the more the board/state was worth. It worked for a little bit while playing, but that was because we got lucky with how the code ran.
+We didn't realize how lucky we were until our bot started to lose by making "stupid" moves. We looked into our code and started looking at what values each state was returning and it looked like multiple states could return the same "best" value. Therefore, the first state to return such value will be picked as a move since the others would be of "equal" value, but will never be picked because they are not greater. This led to a lot of "stupid" moves made by our program even though technically, it was the "best" choice to pick from.

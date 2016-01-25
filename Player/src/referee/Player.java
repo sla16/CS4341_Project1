@@ -1,3 +1,7 @@
+/**
+ * Sam La and Nan Zhang
+ * CS 4341 Project 1 - Adversial Search Connect-N
+ */
 package referee;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,11 +44,11 @@ public class Player {
 			updateBoard(row, action, false);
 			
 			// Perform search so we can find our move
-			int[] bestMove = AlphaBeta_MiniMax(1, true, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			int bestMove = AlphaBeta_MiniMax(1, true, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			
 			// Update board to reflect our move
-			updateBoard(bestMove[1], 1, true);
-			System.out.println(bestMove[1] + " 1");
+			updateBoard(bestMove, 1, true);
+			System.out.println(bestMove + " 1");
 		}
 		else if(ls.size() == GAME_OVER){
 			System.out.println("game over!!!");
@@ -88,14 +92,14 @@ public class Player {
 	}
 	
 	// Checks the current board and finds all valid moves for the specified player
-	private List<int[]> GetValidMoves(boolean isMyTurn) {
-		List<int[]> possibleMoves = new ArrayList<int[]>();
+	private List<Integer> GetValidMoves(boolean isMyTurn) {
+		List<Integer> possibleMoves = new ArrayList<Integer>();
 		
 		for (int i = this.currentBoard.length-1; i > -1; i--) {
 			for (int j = 0; j < this.currentBoard[0].length; j++) {
 				if (this.currentBoard[i][j] == 9) {
 					if (!(containsMoves(possibleMoves, j))) {
-						possibleMoves.add(new int[] {j, 1});
+						possibleMoves.add(j);
 					}
 				}
 			}
@@ -104,9 +108,9 @@ public class Player {
 	}
 	
 	// Helper function to check if the provided list contains a value
-	private boolean containsMoves(List<int[]> possibleMoves, int j) {
+	private boolean containsMoves(List<Integer> possibleMoves, int j) {
 		for(int i = 0; i < possibleMoves.size(); i++) {
-			if (possibleMoves.get(i)[0] == j)
+			if (possibleMoves.get(i) == j)
 				return true;
 		}
 		return false;
@@ -116,60 +120,53 @@ public class Player {
 	// In this case, the variable currentValue will be "v" in the book
 	// First time it is called will be on "Max" side, so our turn. Consecutive
 	// times called will alternate between "Min" and "Max"
-	public int[] AlphaBeta_MiniMax(int depth, boolean isMyTurn, int alpha_value, int beta_value) {
+	// This returns the move to play
+	public int AlphaBeta_MiniMax(int depth, boolean isMyTurn, int alpha_value, int beta_value) {
 		int bestValue = isMyTurn ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 		int currentValue;
 		// Generates next possible moves
-		List<int[]> validMoves = GetValidMoves(isMyTurn);
+		List<Integer> validMoves = GetValidMoves(isMyTurn);
 		int bestMove = -1;
 		
 		// Check if depth is 0 or "end" if there are no more moves and return
 		if (validMoves.size() == 0 || depth == 0) {
 			bestValue = getHeuristicValue(this.currentBoard, isMyTurn);
-			return new int[] {bestValue, bestMove};
+			return bestValue;
 		} 
 		else {
 			// Go through all the valid moves and play through it
 			for (int i = 0; i < validMoves.size(); i++) {
 				// Make the move and then "judge" it based on Max or Min, update board accordingly
-				updateBoard(validMoves.get(i)[0], validMoves.get(i)[1], isMyTurn);
+				updateBoard(validMoves.get(i), 1, isMyTurn);
 				// Maximize for me (player)
 				if (isMyTurn) {
 					// Continue playing, but on "Min" turn
-					currentValue = AlphaBeta_MiniMax(depth - 1, false, alpha_value, beta_value)[0];
-//					System.err.println(validMoves.get(i)[0] + " " + currentValue + " " + alpha_value);
+					currentValue = AlphaBeta_MiniMax(depth - 1, false, alpha_value, beta_value);
 					// Check if it is greater because we want to maximize alpha
 					if (currentValue > alpha_value) {
 						alpha_value = currentValue;
-						bestMove = validMoves.get(i)[0];
+						bestMove = validMoves.get(i);
 					}
 				} 
 				// Maximize for opponent
 				else {
 					// Continue playing, but on "Max" turn
-					currentValue = AlphaBeta_MiniMax(depth - 1, true, alpha_value, beta_value)[0];
+					currentValue = AlphaBeta_MiniMax(depth - 1, true, alpha_value, beta_value);
 					// Check if it is less because we want to minimize beta
 					if (currentValue < beta_value) {
 						beta_value = currentValue;
-						bestMove = validMoves.get(i)[0];
+						bestMove = validMoves.get(i);
 					}
 				}
 				// Revert the board back to the previous state so we can keep track of an updated board
-				undoLastMove(validMoves.get(i)[0], validMoves.get(i)[1], isMyTurn);
+				undoLastMove(validMoves.get(i), 1, isMyTurn);
 				// "Prune tree" section, don't need to keep looking
 				if (alpha_value >= beta_value) break;
 			}
 		}
 
-		// Return alpha or beta depending on Max or Min turn
-		if (isMyTurn) {
-			return new int[] {alpha_value, bestMove};
-		} else {
-			return new int[] {beta_value, bestMove};
-		}
+		return bestMove;
 	}
-	
-	
 	
 	/**
 	 * This method updates the board based on the piece played. Takes into
@@ -205,6 +202,7 @@ public class Player {
 		}
 	}
 	
+	// Opposite of updateBoard, it removes the last piece that was placed in that position
 	public void undoLastMove(int position, int action, boolean isMyTurn) {
 		if(action == PUSH)
 		{
