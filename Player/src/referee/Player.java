@@ -36,6 +36,7 @@ public class Player {
 			int row = Integer.parseInt(ls.get(0));
 			int action = Integer.parseInt(ls.get(1));
 			updateBoard(row, action, false);
+			int[] x = minimax(1, true);
 			// TODO: Find out the best move and make it
 			//updateBoard(bestMove, bestMove, true);			
 //			for (int i = 0; i < columns; i++){
@@ -43,9 +44,9 @@ public class Player {
 //					int[][] heuristicBoard = this.currentBoard;
 //				}
 //			}
-			int randomMove = (int) Math.floor(Math.random() * this.currentBoard[0].length);
-			updateBoard(randomMove, 1, true);
-			System.out.println(randomMove+" 1");
+//			int randomMove = (int) Math.floor(Math.random() * this.currentBoard[0].length);
+			updateBoard(x[1], 1, true);
+			System.out.println(x[1] + " 1");
 		}
 		else if(ls.size() == GAME_OVER){
 			System.out.println("game over!!!");
@@ -96,19 +97,21 @@ public class Player {
 		for (int i = this.currentBoard.length-1; i > -1; i--) {
 			for (int j = 0; j < this.currentBoard[0].length; j++) {
 				if (this.currentBoard[i][j] == 9) {
-					possibleMoves.add(new int[] {j, 1});
+					if (!(containsMoves(possibleMoves, j))) {
+						possibleMoves.add(new int[] {j, 1});
+					}
 				}
 			}
-//			this.nextBoard = new int[this.rows][this.columns];
-//			for(int j = 0; j < this.rows; j++) {
-//				for(int k = 0; k < this.columns; k++) {
-//					this.nextBoard[j][k] = this.currentBoard[j][k];
-//				}
-//			}
-//			updateHeuristicBoard(i, 1, isMyTurn);
-//			this.possibleMoves.add(this.nextBoard);
 		}
 		return possibleMoves;
+	}
+	
+	private boolean containsMoves(List<int[]> possibleMoves, int j) {
+		for(int i = 0; i < possibleMoves.size(); i++) {
+			if (possibleMoves.get(i)[0] == j)
+				return true;
+		}
+		return false;
 	}
 	
 	// {score, row}
@@ -125,12 +128,6 @@ public class Player {
 		else {
 			for (int i = 0; i < possibleMoves.size(); i++) {
 				updateBoard(possibleMoves.get(i)[0], possibleMoves.get(i)[1], isMyTurn);
-//				this.nextBoard = new int[this.rows][this.columns];
-//				for(int j = 0; j < this.rows; j++) {
-//					for(int k = 0; k < this.columns; k++) {
-//						this.nextBoard[j][k] = this.currentBoard[j][k];
-//					}
-//				}
 				// Maximize for me
 				if (isMyTurn) {
 					currentValue = minimax(depth - 1, false)[0];
