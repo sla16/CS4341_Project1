@@ -4,13 +4,22 @@ CS4341----Project 1
 
 ============================
 How to Run?
-java -jar Referee.jar "java -jar Player1.jar" "java -jar Player2.jar" 6 7 3 10 10
-
+java -jar Referee.jar "java -jar Player.jar" "java -jar Player2.jar" 6 7 3 10 10
 
 Explanation:
-For Player1, it can be the player from our group. For player2, it can be any other player
-for demonstration purpose.
+One of the players will be our player, Player.jar (which is provided) and the other player will be the player we will play against. In the example above, it will be Player vs Player2.
 
+Code Explanation:
+We worked off of the testPlayer.java source code that was provided. We modified it so we had a working player and worked from there. We set up all the settings and keep track of the game board through the attribute in the Player class, currentBoard. This can be accessed anytime with this.currentBoard.
+
+After this, we implemented (or tried to...) minimax with alpha beta pruning. This code is inspired from the pseudocode from the book (page 170, edition 2) and we combined both min and max portions into one since it seemed easier that way with a flag to indicate if it is min or max turn.
+To explain our search algorithm, it basically: 
+1. gets all the possible moves
+2. for each move, put it on the board
+3. rank that board (so our heuristic function)
+4. check and replace if better than before
+
+You will see other helper functions such as updating the board, undoing the board and etc. This is to preserve our current board so it doesn't get changed to something else in the process.
 
 ============================
 Heuristic:
