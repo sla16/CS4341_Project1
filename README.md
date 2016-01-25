@@ -35,6 +35,3 @@ W1, W2,....,Wn = The weight assigned to our AI player's checkers.
 S1, S2,....,Sn = The number of adjacent same-color-checker for AI player
 A1, A2,....,Am = The weight assigned to our opponent's checkers
 P1, P2,....,Pm = The number of adjacent same-color-checker for opponent
-
-============================
-Experimentation:
